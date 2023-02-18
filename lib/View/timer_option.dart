@@ -41,18 +41,24 @@ class TimerOption extends StatelessWidget {
                   icon: soundOn
                       ? const Icon(Icons.notifications_rounded)
                       : const Icon(Icons.notifications_off_rounded),
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
                 ),
                 IconButton(
                   onPressed: () => changeVibrationOn(),
                   icon: vibrationOn
                       ? const Icon(Icons.edgesensor_high_rounded)
                       : const Icon(Icons.edgesensor_low_rounded),
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
                 ),
                 IconButton(
                   onPressed: () => changeDisplayTimeOn(),
                   icon: displayTimeOn
                       ? const Icon(Icons.access_time_rounded)
                       : const Icon(Icons.history_toggle_off_rounded),
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
                 ),
               ],
             ),
