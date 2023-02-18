@@ -9,11 +9,11 @@ class TimePageBottomNavigationBar extends StatelessWidget {
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.play_arrow),
-          label: 'Home',
+          label: 'Start',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.stop),
-          label: 'Home',
+          icon: Icon(Icons.pause),
+          label: 'Pause',
         ),
       ],
     );
