@@ -14,6 +14,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'TimeTimerApp',
       theme: ThemeData(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         primarySwatch: Colors.blue,
       ),
       home: const TimePageView(title: 'TimeTimerApp'),
