@@ -3,7 +3,17 @@ import 'package:time_timer_app/View/timer_dial.dart';
 import 'package:time_timer_app/View/timer_option.dart';
 
 class TimerBody extends StatelessWidget {
-  const TimerBody({Key? key}) : super(key: key);
+  const TimerBody(
+      {Key? key,
+      required this.leftTime,
+      required this.soundOn,
+      required this.vibrationOn,
+      required this.displayTimeOn})
+      : super(key: key);
+  final DateTime leftTime;
+  final bool soundOn;
+  final bool vibrationOn;
+  final bool displayTimeOn;
 
   @override
   Widget build(BuildContext context) {
@@ -13,11 +23,17 @@ class TimerBody extends StatelessWidget {
         children: <Widget>[
           Expanded(
             flex: 7,
-            child: TimerDial(),
+            child: Center(
+              child: TimerDial(
+                leftTime: leftTime,
+              ),
+            ),
           ),
           Expanded(
             flex: 3,
-            child: TimerOption(),
+            child: TimerOption(
+              leftTime: leftTime,
+            ),
           )
         ],
       ),
