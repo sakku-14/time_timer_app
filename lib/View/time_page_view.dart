@@ -57,6 +57,7 @@ class _TimePageViewState extends State<TimePageView> {
   // ナビゲーションバー
   // Startボタン
   void pushStart() {
+    if (isPause == false) return;
     isPause = false;
     Timer.periodic(
       const Duration(seconds: 1),
@@ -66,6 +67,7 @@ class _TimePageViewState extends State<TimePageView> {
 
   void durationCallback(Timer timer) {
     if (isPause || finishTimer()) {
+      isPause = true;
       timer.cancel();
       return;
     }
@@ -90,6 +92,29 @@ class _TimePageViewState extends State<TimePageView> {
     });
   }
 
+  // タイマーボディ
+  // タイマーオプション
+  // 通知ON／OFF
+  void changeSoundOn() {
+    setState(() {
+      soundOn = !soundOn;
+    });
+  }
+
+  // 振動ON／OFF
+  void changeVibrationOn() {
+    setState(() {
+      vibrationOn = !vibrationOn;
+    });
+  }
+
+  // 時間表示ON／OFF
+  void changeDisplayTimeOn() {
+    setState(() {
+      displayTimeOn = !displayTimeOn;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,6 +126,9 @@ class _TimePageViewState extends State<TimePageView> {
         soundOn: soundOn,
         vibrationOn: vibrationOn,
         displayTimeOn: displayTimeOn,
+        changeSoundOn: changeSoundOn,
+        changeVibrationOn: changeVibrationOn,
+        changeDisplayTimeOn: changeDisplayTimeOn,
       ),
       bottomNavigationBar: TimePageBottomNavigationBar(
         pushStart: pushStart,
