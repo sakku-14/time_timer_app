@@ -16,13 +16,13 @@ class TimePageView extends StatefulWidget {
 
 class _TimePageViewState extends State<TimePageView> {
   // 定数
-  static const String HourProperty = 'Hour';
-  static const String MinuteProperty = 'Minute';
-  static const String SecondProperty = 'Second';
-  static const String IsPauseProperty = 'IsPause';
-  static const String SoundOnProperty = 'SoundOn';
-  static const String VibrationOnProperty = 'VibrationOn';
-  static const String DisplayTimeOnProperty = 'DisplayTimeOn';
+  static const String hourProperty = 'Hour';
+  static const String minuteProperty = 'Minute';
+  static const String secondProperty = 'Second';
+  static const String isPauseProperty = 'IsPause';
+  static const String soundOnProperty = 'SoundOn';
+  static const String vibrationOnProperty = 'VibrationOn';
+  static const String displayTimeOnProperty = 'DisplayTimeOn';
 
   // フィールド
   late DateTime leftTime = DateTime(0);
@@ -38,18 +38,18 @@ class _TimePageViewState extends State<TimePageView> {
     // 前回設定値の取得
     Future(() async {
       final prefs = await SharedPreferences.getInstance();
-      final int? hour = prefs.getInt(HourProperty);
-      final int? minute = prefs.getInt(MinuteProperty);
-      final int? second = prefs.getInt(SecondProperty);
+      final int? hour = prefs.getInt(hourProperty);
+      final int? minute = prefs.getInt(minuteProperty);
+      final int? second = prefs.getInt(secondProperty);
       if (hour != null && minute != null && second != null) {
         leftTime = DateTime(0, 0, 0, hour, minute, second);
       } else {
         leftTime = DateTime(0, 0, 0, 0, 0, 0);
       }
-      isPause = prefs.getBool(IsPauseProperty) ?? true;
-      soundOn = prefs.getBool(SoundOnProperty) ?? true;
-      vibrationOn = prefs.getBool(VibrationOnProperty) ?? true;
-      displayTimeOn = prefs.getBool(DisplayTimeOnProperty) ?? true;
+      isPause = prefs.getBool(isPauseProperty) ?? true;
+      soundOn = prefs.getBool(soundOnProperty) ?? true;
+      vibrationOn = prefs.getBool(vibrationOnProperty) ?? true;
+      displayTimeOn = prefs.getBool(displayTimeOnProperty) ?? true;
     });
   }
 
