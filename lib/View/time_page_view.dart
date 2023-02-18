@@ -65,7 +65,7 @@ class _TimePageViewState extends State<TimePageView> {
   }
 
   void durationCallback(Timer timer) {
-    if (isPause) {
+    if (isPause || finishTimer()) {
       timer.cancel();
       return;
     }
@@ -74,12 +74,19 @@ class _TimePageViewState extends State<TimePageView> {
     });
   }
 
+  bool finishTimer() {
+    if (leftTime.hour == 0 && leftTime.minute == 0 && leftTime.second == 0) {
+      return true;
+    }
+    return false;
+  }
+
   // Pauseボタン
   void pushPause() {
     setState(() {
       isPause = true;
       // TODO:23.02.18:デバッグ用にリセット機能追加
-      leftTime = DateTime(0, 0, 0, 1, 0, 0);
+      leftTime = DateTime(0, 0, 0, 0, 0, 10);
     });
   }
 
