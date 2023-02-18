@@ -11,8 +11,14 @@ class TimerBody extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          TimerDial(),
-          TimerOption(),
+          Expanded(
+            flex: 7,
+            child: TimerDial(),
+          ),
+          Expanded(
+            flex: 3,
+            child: TimerOption(),
+          )
         ],
       ),
     );
