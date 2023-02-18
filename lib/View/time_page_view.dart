@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:time_timer_app/View/time_page_app_bar.dart';
 import 'package:time_timer_app/View/time_page_bottom_navigation_bar.dart';
 import 'package:time_timer_app/View/timer_body.dart';
+import 'package:vibration/vibration.dart';
 
 class TimePageView extends StatefulWidget {
   const TimePageView({Key? key, required this.title}) : super(key: key);
@@ -57,7 +58,9 @@ class _TimePageViewState extends State<TimePageView> {
   // ナビゲーションバー
   // Startボタン
   void pushStart() {
-    if (isPause == false) return;
+    // タイマー起動中ORすでにタイマー終了してるなら早期リターン
+    if (isPause == false || isFinishedTimer()) return;
+
     isPause = false;
     Timer.periodic(
       const Duration(seconds: 1),
@@ -77,6 +80,24 @@ class _TimePageViewState extends State<TimePageView> {
   }
 
   bool finishTimer() {
+    if (isFinishedTimer()) {
+      if (vibrationOn) {
+        Future(() async {
+          if (await Vibration.hasVibrator() ?? false) {
+            Vibration.vibrate();
+            await Future.delayed(const Duration(milliseconds: 500));
+            Vibration.vibrate();
+            await Future.delayed(const Duration(milliseconds: 500));
+            Vibration.vibrate();
+          }
+        });
+      }
+      return true;
+    }
+    return false;
+  }
+
+  bool isFinishedTimer() {
     if (leftTime.hour == 0 && leftTime.minute == 0 && leftTime.second == 0) {
       return true;
     }
@@ -88,7 +109,7 @@ class _TimePageViewState extends State<TimePageView> {
     setState(() {
       isPause = true;
       // TODO:23.02.18:デバッグ用にリセット機能追加
-      leftTime = DateTime(0, 0, 0, 0, 0, 10);
+      leftTime = DateTime(0, 0, 0, 0, 0, 3);
     });
   }
 
