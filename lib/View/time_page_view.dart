@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:time_timer_app/Infrastructure/notification_service.dart';
 import 'package:time_timer_app/View/time_page_app_bar.dart';
 import 'package:time_timer_app/View/time_page_bottom_navigation_bar.dart';
 import 'package:time_timer_app/View/timer_body.dart';
@@ -81,6 +82,7 @@ class _TimePageViewState extends State<TimePageView> {
 
   bool finishTimer() {
     if (isFinishedTimer()) {
+      NotificationService.notifyNow();
       if (vibrationOn) {
         Future(() async {
           if (await Vibration.hasVibrator() ?? false) {
