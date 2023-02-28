@@ -24,6 +24,7 @@ Future<void> main() async {
     iOS: initializationSettingsDarwin,
   );
   await FlutterLocalNotificationsPlugin().initialize(initializationSettings);
+
   runApp(const MyApp());
 }
 

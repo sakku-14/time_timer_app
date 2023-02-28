@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:time_timer_app/View/timer_option_icon_button.dart';
 
 class TimerOption extends StatelessWidget {
   const TimerOption(
@@ -12,10 +13,10 @@ class TimerOption extends StatelessWidget {
       required this.changeVibrationOn,
       required this.changeDisplayTimeOn})
       : super(key: key);
-  final DateTime leftTime;
-  final bool soundOn;
-  final bool vibrationOn;
-  final bool displayTimeOn;
+  final Future<DateTime> leftTime;
+  final Future<bool> soundOn;
+  final Future<bool> vibrationOn;
+  final Future<bool> displayTimeOn;
   final Function changeSoundOn;
   final Function changeVibrationOn;
   final Function changeDisplayTimeOn;
@@ -36,32 +37,60 @@ class TimerOption extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  onPressed: () => changeSoundOn(),
-                  icon: soundOn
-                      ? const Icon(Icons.notifications_rounded)
-                      : const Icon(Icons.notifications_off_rounded),
-                ),
-                IconButton(
-                  onPressed: () => changeVibrationOn(),
-                  icon: vibrationOn
-                      ? const Icon(Icons.edgesensor_high_rounded)
-                      : const Icon(Icons.edgesensor_low_rounded),
-                ),
-                IconButton(
-                  onPressed: () => changeDisplayTimeOn(),
-                  icon: displayTimeOn
-                      ? const Icon(Icons.access_time_rounded)
-                      : const Icon(Icons.history_toggle_off_rounded),
-                ),
+                TimerOptionIconButton(
+                    stateFlag: soundOn,
+                    stateTrueIcon: const Icon(Icons.notifications_rounded),
+                    stateFalseIcon: const Icon(Icons.notifications_off_rounded),
+                    onPressedFunction: changeSoundOn),
+                TimerOptionIconButton(
+                    stateFlag: vibrationOn,
+                    stateTrueIcon: const Icon(Icons.edgesensor_high_rounded),
+                    stateFalseIcon: const Icon(Icons.edgesensor_low_rounded),
+                    onPressedFunction: changeVibrationOn),
+                TimerOptionIconButton(
+                    stateFlag: displayTimeOn,
+                    stateTrueIcon: const Icon(Icons.access_time_rounded),
+                    stateFalseIcon:
+                        const Icon(Icons.history_toggle_off_rounded),
+                    onPressedFunction: changeDisplayTimeOn),
               ],
             ),
           ),
           Expanded(
             flex: 8,
-            child: Center(
-              child:
-                  displayTimeOn ? Text(getDisplayTime(leftTime)) : Container(),
+            child: FutureBuilder<bool>(
+              future: displayTimeOn,
+              builder: (context, snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                  case ConnectionState.waiting:
+                    return const CircularProgressIndicator();
+                  case ConnectionState.active:
+                  case ConnectionState.done:
+                    if (snapshot.hasData) {
+                      return Center(
+                        child: snapshot!.data!
+                            ? FutureBuilder<DateTime>(
+                                future: leftTime,
+                                builder: (context, snapshot) {
+                                  switch (snapshot.connectionState) {
+                                    case ConnectionState.none:
+                                    case ConnectionState.waiting:
+                                      return const CircularProgressIndicator();
+                                    case ConnectionState.active:
+                                    case ConnectionState.done:
+                                      return Text(
+                                          getDisplayTime(snapshot!.data!));
+                                  }
+                                },
+                              )
+                            : Container(),
+                      );
+                    } else {
+                      return Container();
+                    }
+                }
+              },
             ),
           ),
         ],

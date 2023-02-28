@@ -13,10 +13,10 @@ class TimerBody extends StatelessWidget {
       required this.changeVibrationOn,
       required this.changeDisplayTimeOn})
       : super(key: key);
-  final DateTime leftTime;
-  final bool soundOn;
-  final bool vibrationOn;
-  final bool displayTimeOn;
+  final Future<DateTime> leftTime;
+  final Future<bool> soundOn;
+  final Future<bool> vibrationOn;
+  final Future<bool> displayTimeOn;
   final Function changeSoundOn;
   final Function changeVibrationOn;
   final Function changeDisplayTimeOn;
