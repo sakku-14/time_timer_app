@@ -11,15 +11,19 @@ class TimerBody extends StatelessWidget {
       required this.displayTimeOn,
       required this.changeSoundOn,
       required this.changeVibrationOn,
-      required this.changeDisplayTimeOn})
+      required this.changeDisplayTimeOn,
+      required this.setMinutes,
+      required this.minuteForArc})
       : super(key: key);
   final Future<DateTime> leftTime;
   final Future<bool> soundOn;
   final Future<bool> vibrationOn;
   final Future<bool> displayTimeOn;
+  final int minuteForArc;
   final Function changeSoundOn;
   final Function changeVibrationOn;
   final Function changeDisplayTimeOn;
+  final Function setMinutes;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +36,8 @@ class TimerBody extends StatelessWidget {
             child: Center(
               child: TimerDial(
                 leftTime: leftTime,
+                setMinutes: setMinutes,
+                minuteForArc: minuteForArc,
               ),
             ),
           ),

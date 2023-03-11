@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:time_timer_app/Infrastructure/notification_service.dart';
 import 'package:time_timer_app/View/time_page_app_bar.dart';
 import 'package:time_timer_app/View/time_page_bottom_navigation_bar.dart';
-import 'package:time_timer_app/View/timer_body.dart';
+import 'package:time_timer_app/View/timer_arc.dart';
+import 'package:time_timer_app/View/timer_drag_area.dart';
+import 'package:time_timer_app/View/timer_option.dart';
 import 'package:vibration/vibration.dart';
 
 class TimePageView extends StatefulWidget {
@@ -38,6 +41,7 @@ class _TimePageViewState extends State<TimePageView>
   late Future<bool> vibrationOn;
   late Future<bool> displayTimeOn;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  var minuteForArc = 0;
   //#endregion
   //#endregion
 
@@ -92,6 +96,7 @@ class _TimePageViewState extends State<TimePageView>
       displayTimeOn =
           _prefs.then((value) => value.getBool(displayTimeOnProperty) ?? true);
     });
+    minuteForArc = (await leftTime).minute;
     // 前回タイマー起動中ならタイマー起動させる
     if (!await isPause) startTimer();
   }
@@ -145,7 +150,7 @@ class _TimePageViewState extends State<TimePageView>
   }
 
   //#region 状態変化メソッド
-  // ナビゲーションバー
+  //region ナビゲーションバー
   // Startボタン
   Future<void> pushStart() async {
     // タイマー起動中ORすでにタイマー終了してるなら早期リターン
@@ -174,12 +179,16 @@ class _TimePageViewState extends State<TimePageView>
     final newLeftTime = (await leftTime).subtract(const Duration(seconds: 1));
     setState(() {
       leftTime = setDateTimeFromPrefs(leftTimeProperty, newLeftTime);
+      minuteForArc =
+          newLeftTime.second == 0 ? newLeftTime.minute : newLeftTime.minute + 1;
     });
   }
 
   Future<bool> finishTimer() async {
     if (await isFinishedTimer()) {
-      NotificationService.notifyNow();
+      if (await soundOn) {
+        NotificationService.notifyNow();
+      }
       if (await vibrationOn) {
         Future(() async {
           if (await Vibration.hasVibrator() ?? false) {
@@ -210,14 +219,63 @@ class _TimePageViewState extends State<TimePageView>
   Future<void> pushPause() async {
     setState(() {
       isPause = setBoolFromPrefs(isPauseProperty, true);
-      // TODO:23.02.18:デバッグ用にリセット機能追加
-      leftTime =
-          setDateTimeFromPrefs(leftTimeProperty, DateTime(0, 0, 0, 0, 0, 20));
+    });
+  }
+  // endregion
+
+  // region タイマーボディ
+  // region タイマー
+  void setMinutes(DragUpdateDetails dragUpdateDetails, double x, double y,
+      double centerX, double centerY, bool isBeginDrag) {
+    // 時間設定時はタイマーを停止する
+    pushPause();
+    var setMinutes = 0;
+    final width = (x - centerX).abs();
+    final height = (y - centerY).abs();
+    final hypotenuse = sqrt(pow(width, 2) + pow(height, 2));
+
+    if (x < centerX && y > 0 && y < centerY) {
+      setMinutes = ((acos(height / hypotenuse) / (2 * pi)) * 60).floor(); // 左上
+    } else if (x < centerX && y >= centerY) {
+      setMinutes =
+          ((acos(width / hypotenuse) / (2 * pi)) * 60 + 15).floor(); // 左下
+    } else if (x >= centerX && y >= centerY) {
+      setMinutes =
+          ((acos(height / hypotenuse) / (2 * pi)) * 60 + 30).floor(); // 右下
+    } else if (x >= centerX && y > 0 && y < centerY) {
+      setMinutes =
+          ((acos(width / hypotenuse) / (2 * pi)) * 60 + 45).floor(); // 右上
+    }
+
+    // 0と60の境目をドラッグした際の挙動制御
+    if (dragUpdateDetails.delta.dx > 0 && x > centerX && y < centerY) {
+      if (x - dragUpdateDetails.delta.dx <= centerX) {
+        setMinutes = 0;
+      }
+    }
+    if (dragUpdateDetails.delta.dx < 0 && x < centerX && y < centerY) {
+      if (x - dragUpdateDetails.delta.dx >= centerX) {
+        setMinutes = 60;
+      }
+    }
+
+    // 設定時間が最大・最小の時の挙動制御
+    if (isBeginDrag == false && minuteForArc == 60 && setMinutes < 50) {
+      return;
+    }
+    if (isBeginDrag == false && minuteForArc == 0 && setMinutes > 10) {
+      return;
+    }
+
+    setState(() {
+      leftTime = setDateTimeFromPrefs(
+          leftTimeProperty, DateTime(0, 0, 0, 0, setMinutes, 0));
+      minuteForArc = setMinutes;
     });
   }
 
-  // タイマーボディ
-  // タイマーオプション
+  // endregion
+  // region タイマーオプション
   // 通知ON／OFF
   Future<void> changeSoundOn() async {
     final newSoundOn = !(await getBoolFromPrefs(soundOnProperty));
@@ -241,7 +299,11 @@ class _TimePageViewState extends State<TimePageView>
       displayTimeOn = setBoolFromPrefs(displayTimeOnProperty, newDisplayTimeOn);
     });
   }
+
+  // endregion
+  // endregion
   //#endregion 状態変化メソッド
+  final globalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -249,14 +311,46 @@ class _TimePageViewState extends State<TimePageView>
       appBar: TimePageAppBar(
         title: widget.title,
       ),
-      body: TimerBody(
-        leftTime: leftTime,
-        soundOn: soundOn,
-        vibrationOn: vibrationOn,
-        displayTimeOn: displayTimeOn,
-        changeSoundOn: changeSoundOn,
-        changeVibrationOn: changeVibrationOn,
-        changeDisplayTimeOn: changeDisplayTimeOn,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              flex: 7,
+              child: Center(
+                child: Stack(
+                  key: globalKey,
+                  children: [
+                    Center(
+                      child: TimerArc(
+                        globalKey: globalKey,
+                        minutes: minuteForArc,
+                      ),
+                    ),
+                    Center(
+                      child: TimerDragArea(
+                        globalKey: globalKey,
+                        setMinutes: setMinutes,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: TimerOption(
+                leftTime: leftTime,
+                soundOn: soundOn,
+                vibrationOn: vibrationOn,
+                displayTimeOn: displayTimeOn,
+                changeSoundOn: changeSoundOn,
+                changeVibrationOn: changeVibrationOn,
+                changeDisplayTimeOn: changeDisplayTimeOn,
+              ),
+            )
+          ],
+        ),
       ),
       bottomNavigationBar: TimePageBottomNavigationBar(
         pushStart: pushStart,

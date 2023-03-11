@@ -1,22 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:time_timer_app/View/timer_arc.dart';
+import 'package:time_timer_app/View/timer_drag_area.dart';
 
 class TimerDial extends StatelessWidget {
-  const TimerDial({Key? key, required this.leftTime}) : super(key: key);
+  TimerDial(
+      {Key? key,
+      required this.leftTime,
+      required this.setMinutes,
+      required this.minuteForArc})
+      : super(key: key);
   final Future<DateTime> leftTime;
+  final int minuteForArc;
+  final globalKey = GlobalKey();
+  final Function setMinutes;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DateTime>(
-        future: leftTime,
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            case ConnectionState.waiting:
-              return const CircularProgressIndicator();
-            case ConnectionState.active:
-            case ConnectionState.done:
-              return Text(snapshot!.data.toString());
-          }
-        });
+    return Stack(
+      key: globalKey,
+      children: [
+        Center(
+          child: TimerArc(
+            globalKey: globalKey,
+            minutes: minuteForArc,
+          ),
+        ),
+        Center(
+          child: TimerDragArea(
+            globalKey: globalKey,
+            setMinutes: setMinutes,
+          ),
+        ),
+      ],
+    );
   }
 }
