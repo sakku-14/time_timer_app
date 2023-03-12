@@ -86,8 +86,11 @@ class _TimePageViewState extends State<TimePageView>
     setState(() {
       leftTime = _prefs.then((value) {
         final dateTimeFormat = DateFormat(dateTimeFormatString);
-        return dateTimeFormat.parse(value.getString(leftTimeProperty) ??
-            dateTimeFormat.format(DateTime(0)));
+        final leftTime = dateTimeFormat.parse(
+            value.getString(leftTimeProperty) ??
+                dateTimeFormat.format(DateTime(0)));
+        minuteForArc = leftTime.minute;
+        return leftTime;
       });
       isPause = _prefs.then((value) => value.getBool(isPauseProperty) ?? true);
       soundOn = _prefs.then((value) => value.getBool(soundOnProperty) ?? true);
