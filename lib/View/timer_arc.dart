@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:time_timer_app/View/timer_arc_painter.dart';
 
@@ -12,7 +10,10 @@ class TimerArc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: TimerArcPainter(globalKey, minutes),
+      child: Center(
+        child: Image.asset('images/Timer.png'),
+      ),
+      foregroundPainter: TimerArcPainter(globalKey, minutes),
     );
   }
 }

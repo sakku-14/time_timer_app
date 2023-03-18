@@ -3,16 +3,17 @@ import 'package:time_timer_app/View/timer_arc.dart';
 import 'package:time_timer_app/View/timer_drag_area.dart';
 
 class TimerDial extends StatelessWidget {
-  TimerDial(
-      {Key? key,
-      required this.leftTime,
-      required this.setMinutes,
-      required this.minuteForArc})
-      : super(key: key);
+  TimerDial({
+    Key? key,
+    required this.leftTime,
+    required this.setMinutes,
+    required this.minuteForArc,
+  }) : super(key: key);
   final Future<DateTime> leftTime;
   final int minuteForArc;
-  final globalKey = GlobalKey();
   final Function setMinutes;
+
+  final GlobalKey globalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
