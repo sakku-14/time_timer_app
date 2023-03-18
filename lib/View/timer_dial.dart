@@ -9,7 +9,7 @@ class TimerDial extends StatelessWidget {
     required this.setMinutes,
     required this.minuteForArc,
   }) : super(key: key);
-  final Future<DateTime> leftTime;
+  final DateTime leftTime;
   final int minuteForArc;
   final Function setMinutes;
 

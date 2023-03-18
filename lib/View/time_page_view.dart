@@ -41,6 +41,7 @@ class _TimePageViewState extends State<TimePageView>
   late Future<bool> vibrationOn;
   late Future<bool> displayTimeOn;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  late DateTime localLeftTime = DateTime(0);
   var minuteForArc = 0;
   //#endregion
   //#endregion
@@ -89,6 +90,7 @@ class _TimePageViewState extends State<TimePageView>
         final leftTime = dateTimeFormat.parse(
             value.getString(leftTimeProperty) ??
                 dateTimeFormat.format(DateTime(0)));
+        localLeftTime = leftTime;
         minuteForArc =
             leftTime.second == 0 ? leftTime.minute : leftTime.minute + 1;
         return leftTime;
@@ -109,7 +111,7 @@ class _TimePageViewState extends State<TimePageView>
     // 現在設定値の保存
     final dateTimeFormat = DateFormat(dateTimeFormatString);
     final prefs = await _prefs;
-    prefs.setString(leftTimeProperty, dateTimeFormat.format(await leftTime));
+    prefs.setString(leftTimeProperty, dateTimeFormat.format(localLeftTime));
     prefs.setBool(isPauseProperty, await isPause);
     prefs.setBool(soundOnProperty, await soundOn);
     prefs.setBool(vibrationOnProperty, await vibrationOn);
@@ -179,9 +181,9 @@ class _TimePageViewState extends State<TimePageView>
       timer.cancel();
       return;
     }
-    final newLeftTime = (await leftTime).subtract(const Duration(seconds: 1));
+    final newLeftTime = localLeftTime.subtract(const Duration(seconds: 1));
     setState(() {
-      leftTime = setDateTimeFromPrefs(leftTimeProperty, newLeftTime);
+      localLeftTime = newLeftTime;
       minuteForArc =
           newLeftTime.second == 0 ? newLeftTime.minute : newLeftTime.minute + 1;
     });
@@ -209,10 +211,9 @@ class _TimePageViewState extends State<TimePageView>
   }
 
   Future<bool> isFinishedTimer() async {
-    final leftTimeValue = await leftTime;
-    if (leftTimeValue.hour == 0 &&
-        leftTimeValue.minute == 0 &&
-        leftTimeValue.second == 0) {
+    if (localLeftTime.hour == 0 &&
+        localLeftTime.minute == 0 &&
+        localLeftTime.second == 0) {
       return true;
     }
     return false;
@@ -222,6 +223,7 @@ class _TimePageViewState extends State<TimePageView>
   Future<void> pushPause() async {
     setState(() {
       isPause = setBoolFromPrefs(isPauseProperty, true);
+      setDateTimeFromPrefs(leftTimeProperty, localLeftTime);
     });
   }
   // endregion
@@ -271,8 +273,7 @@ class _TimePageViewState extends State<TimePageView>
     }
 
     setState(() {
-      leftTime = setDateTimeFromPrefs(
-          leftTimeProperty, DateTime(0, 0, 0, 0, setMinutes, 0));
+      localLeftTime = DateTime(0, 0, 0, 0, setMinutes, 0);
       minuteForArc = setMinutes;
     });
   }
@@ -343,7 +344,7 @@ class _TimePageViewState extends State<TimePageView>
             Expanded(
               flex: 3,
               child: TimerOption(
-                leftTime: leftTime,
+                leftTime: localLeftTime,
                 soundOn: soundOn,
                 vibrationOn: vibrationOn,
                 displayTimeOn: displayTimeOn,

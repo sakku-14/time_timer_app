@@ -15,7 +15,7 @@ class TimerBody extends StatelessWidget {
       required this.setMinutes,
       required this.minuteForArc})
       : super(key: key);
-  final Future<DateTime> leftTime;
+  final DateTime leftTime;
   final Future<bool> soundOn;
   final Future<bool> vibrationOn;
   final Future<bool> displayTimeOn;

@@ -13,7 +13,7 @@ class TimerOption extends StatelessWidget {
       required this.changeVibrationOn,
       required this.changeDisplayTimeOn})
       : super(key: key);
-  final Future<DateTime> leftTime;
+  final DateTime leftTime;
   final Future<bool> soundOn;
   final Future<bool> vibrationOn;
   final Future<bool> displayTimeOn;
@@ -21,7 +21,7 @@ class TimerOption extends StatelessWidget {
   final Function changeVibrationOn;
   final Function changeDisplayTimeOn;
 
-  String getDisplayTime(DateTime leftTime) {
+  String get getDisplayTime {
     var dateFormat = DateFormat('HH:mm:ss');
     return dateFormat.format(leftTime);
   }
@@ -70,20 +70,7 @@ class TimerOption extends StatelessWidget {
                     if (snapshot.hasData) {
                       return Center(
                         child: snapshot!.data!
-                            ? FutureBuilder<DateTime>(
-                                future: leftTime,
-                                builder: (context, snapshot) {
-                                  switch (snapshot.connectionState) {
-                                    case ConnectionState.none:
-                                    case ConnectionState.waiting:
-                                      return const CircularProgressIndicator();
-                                    case ConnectionState.active:
-                                    case ConnectionState.done:
-                                      return Text(
-                                          getDisplayTime(snapshot!.data!));
-                                  }
-                                },
-                              )
+                            ? Text(getDisplayTime)
                             : Container(),
                       );
                     } else {
