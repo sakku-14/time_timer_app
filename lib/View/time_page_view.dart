@@ -89,7 +89,8 @@ class _TimePageViewState extends State<TimePageView>
         final leftTime = dateTimeFormat.parse(
             value.getString(leftTimeProperty) ??
                 dateTimeFormat.format(DateTime(0)));
-        minuteForArc = leftTime.minute;
+        minuteForArc =
+            leftTime.second == 0 ? leftTime.minute : leftTime.minute + 1;
         return leftTime;
       });
       isPause = _prefs.then((value) => value.getBool(isPauseProperty) ?? true);
@@ -99,7 +100,6 @@ class _TimePageViewState extends State<TimePageView>
       displayTimeOn =
           _prefs.then((value) => value.getBool(displayTimeOnProperty) ?? true);
     });
-    minuteForArc = (await leftTime).minute;
     // 前回タイマー起動中ならタイマー起動させる
     if (!await isPause) startTimer();
   }
