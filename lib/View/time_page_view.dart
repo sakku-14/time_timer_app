@@ -197,11 +197,9 @@ class _TimePageViewState extends State<TimePageView>
       if (await vibrationOn) {
         Future(() async {
           if (await Vibration.hasVibrator() ?? false) {
-            Vibration.vibrate();
-            await Future.delayed(const Duration(milliseconds: 500));
-            Vibration.vibrate();
-            await Future.delayed(const Duration(milliseconds: 500));
-            Vibration.vibrate();
+            Vibration.vibrate(
+                pattern: [2000, 500, 2000, 500, 2000, 500],
+                intensities: [255, 0, 255, 0, 255, 0]);
           }
         });
       }
