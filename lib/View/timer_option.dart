@@ -14,9 +14,9 @@ class TimerOption extends StatelessWidget {
       required this.changeDisplayTimeOn})
       : super(key: key);
   final DateTime leftTime;
-  final Future<bool> soundOn;
-  final Future<bool> vibrationOn;
-  final Future<bool> displayTimeOn;
+  final bool soundOn;
+  final bool vibrationOn;
+  final bool displayTimeOn;
   final Function changeSoundOn;
   final Function changeVibrationOn;
   final Function changeDisplayTimeOn;
@@ -57,29 +57,10 @@ class TimerOption extends StatelessWidget {
             ),
           ),
           Expanded(
-            flex: 8,
-            child: FutureBuilder<bool>(
-              future: displayTimeOn,
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                  case ConnectionState.waiting:
-                    return const CircularProgressIndicator();
-                  case ConnectionState.active:
-                  case ConnectionState.done:
-                    if (snapshot.hasData) {
-                      return Center(
-                        child: snapshot!.data!
-                            ? Text(getDisplayTime)
-                            : Container(),
-                      );
-                    } else {
-                      return Container();
-                    }
-                }
-              },
-            ),
-          ),
+              flex: 8,
+              child: Center(
+                child: displayTimeOn ? Text(getDisplayTime) : Container(),
+              )),
         ],
       ),
     );

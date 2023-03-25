@@ -31,18 +31,18 @@ class _TimePageViewState extends State<TimePageView>
   static const String soundOnProperty = 'SoundOn';
   static const String vibrationOnProperty = 'VibrationOn';
   static const String displayTimeOnProperty = 'DisplayTimeOn';
-  static const String dateTimeFormatString = 'yyyy-MM-dd hh:mm:ss';
+  static const String dateTimeFormatString = 'yyyy-MM-dd HH:mm:ss';
   //#endregion
 
   //#region 変数
-  late Future<DateTime> leftTime;
-  late Future<bool> isPause;
-  late Future<bool> soundOn;
-  late Future<bool> vibrationOn;
-  late Future<bool> displayTimeOn;
+  var isPause = true;
+  var soundOn = true;
+  var vibrationOn = true;
+  var displayTimeOn = true;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  late DateTime localLeftTime = DateTime(0);
+  var localLeftTime = DateTime(0);
   var minuteForArc = 0;
+  var timerCancelFlag = false;
   //#endregion
   //#endregion
 
@@ -52,6 +52,9 @@ class _TimePageViewState extends State<TimePageView>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     // アプリ起動時処理実行
+    if (kDebugMode) {
+      print("state = initState");
+    }
     onInitState();
   }
 
@@ -68,11 +71,13 @@ class _TimePageViewState extends State<TimePageView>
     }
     switch (state) {
       case AppLifecycleState.resumed: // アプリ復帰
+        onInitState();
         break;
       case AppLifecycleState.inactive: // AppLifecycleState切り替わる時に呼ばれる
         break;
       case AppLifecycleState.paused: // バックグラウンド起動へ移行直前
         // Timer.periodic使用してるから、バックグラウンドでも状態更新してくれる為、状態保存する必要なさそう
+        onDetached();
         break;
       case AppLifecycleState.detached: // アプリ終了時
         onDetached();
@@ -83,42 +88,71 @@ class _TimePageViewState extends State<TimePageView>
   // アプリ起動時処理
   Future<void> onInitState() async {
     NotificationService.cancelNotificationsSchedule();
+    final dateTimeFormat = DateFormat(dateTimeFormatString);
+
     // 前回設定値の取得
-    setState(() {
-      leftTime = _prefs.then((value) {
-        final dateTimeFormat = DateFormat(dateTimeFormatString);
-        final leftTime = dateTimeFormat.parse(
-            value.getString(leftTimeProperty) ??
-                dateTimeFormat.format(DateTime(0)));
-        localLeftTime = leftTime;
-        minuteForArc =
-            leftTime.second == 0 ? leftTime.minute : leftTime.minute + 1;
-        return leftTime;
-      });
-      isPause = _prefs.then((value) => value.getBool(isPauseProperty) ?? true);
-      soundOn = _prefs.then((value) => value.getBool(soundOnProperty) ?? true);
-      vibrationOn =
-          _prefs.then((value) => value.getBool(vibrationOnProperty) ?? true);
-      displayTimeOn =
-          _prefs.then((value) => value.getBool(displayTimeOnProperty) ?? true);
+    var tempLocalLeftTime = await _prefs.then((value) {
+      final leftTime = dateTimeFormat.parse(value.getString(leftTimeProperty) ??
+          dateTimeFormat.format(DateTime(0)));
+      return leftTime;
+    });
+    final tempIsPause =
+        await _prefs.then((value) => value.getBool(isPauseProperty) ?? true);
+    final tempSoundOn =
+        await _prefs.then((value) => value.getBool(soundOnProperty) ?? true);
+    final tempVibrationOn = await _prefs
+        .then((value) => value.getBool(vibrationOnProperty) ?? true);
+    final tempDisplayTimeOn = await _prefs
+        .then((value) => value.getBool(displayTimeOnProperty) ?? true);
+    final detachedTime = await _prefs.then((value) {
+      return dateTimeFormat.parse(value.getString(detachedTimeProperty) ??
+          dateTimeFormat.format(DateTime(0)));
     });
     // 前回タイマー起動中ならタイマー起動させる
-    if (!await isPause) startTimer();
+    if (!tempIsPause) {
+      final diffDuration = DateTime.now().difference(detachedTime);
+      final leftTimeDuration = tempLocalLeftTime.difference(DateTime(0));
+      if (diffDuration.inDays >= 1 ||
+          diffDuration.inHours >= 1 ||
+          IsLongDuration(diffDuration, leftTimeDuration)) {
+        tempLocalLeftTime = DateTime(0);
+        timerCancelFlag = true;
+      } else {
+        tempLocalLeftTime = tempLocalLeftTime.subtract(diffDuration);
+        timerCancelFlag = false;
+        startTimer();
+      }
+    }
+
+    setState(() {
+      isPause = tempIsPause;
+      soundOn = tempSoundOn;
+      vibrationOn = tempVibrationOn;
+      displayTimeOn = tempDisplayTimeOn;
+      localLeftTime = tempLocalLeftTime;
+      minuteForArc = localLeftTime.second == 0
+          ? localLeftTime.minute
+          : localLeftTime.minute + 1;
+    });
   }
 
   // アプリ終了時処理
   Future<void> onDetached() async {
+    var notifyDateTime = DateTime.now().add(
+        Duration(minutes: localLeftTime.minute, seconds: localLeftTime.second));
+    NotificationService.scheduleNotifications(notifyDateTime);
     // 現在設定値の保存
     final dateTimeFormat = DateFormat(dateTimeFormatString);
     final prefs = await _prefs;
     prefs.setString(leftTimeProperty, dateTimeFormat.format(localLeftTime));
-    prefs.setBool(isPauseProperty, await isPause);
-    prefs.setBool(soundOnProperty, await soundOn);
-    prefs.setBool(vibrationOnProperty, await vibrationOn);
-    prefs.setBool(displayTimeOnProperty, await displayTimeOn);
-    if (!await isPause) {
+    prefs.setBool(isPauseProperty, isPause);
+    prefs.setBool(soundOnProperty, soundOn);
+    prefs.setBool(vibrationOnProperty, vibrationOn);
+    prefs.setBool(displayTimeOnProperty, displayTimeOn);
+    if (!isPause) {
       prefs.setString(
           detachedTimeProperty, dateTimeFormat.format(DateTime.now()));
+      timerCancelFlag = true;
     }
   }
 
@@ -159,9 +193,9 @@ class _TimePageViewState extends State<TimePageView>
   // Startボタン
   Future<void> pushStart() async {
     // タイマー起動中ORすでにタイマー終了してるなら早期リターン
-    if (await isPause == false || await isFinishedTimer()) return;
+    if (isPause == false || await isFinishedTimer()) return;
     final newIsPause = !(await getBoolFromPrefs(isPauseProperty));
-    isPause = setBoolFromPrefs(isPauseProperty, newIsPause);
+    isPause = await setBoolFromPrefs(isPauseProperty, newIsPause);
     Timer.periodic(
       const Duration(seconds: 1),
       durationCallback,
@@ -176,8 +210,14 @@ class _TimePageViewState extends State<TimePageView>
   }
 
   Future<void> durationCallback(Timer timer) async {
-    if (await isPause || await finishTimer()) {
-      isPause = setBoolFromPrefs(isPauseProperty, true);
+    if (timerCancelFlag) {
+      timer.cancel();
+      isPause = true;
+      timerCancelFlag = false;
+      return;
+    }
+    if (isPause || await finishTimer()) {
+      isPause = await setBoolFromPrefs(isPauseProperty, true);
       timer.cancel();
       return;
     }
@@ -191,10 +231,10 @@ class _TimePageViewState extends State<TimePageView>
 
   Future<bool> finishTimer() async {
     if (await isFinishedTimer()) {
-      if (await soundOn) {
+      if (soundOn) {
         NotificationService.notifyNow();
       }
-      if (await vibrationOn) {
+      if (vibrationOn) {
         Future(() async {
           if (await Vibration.hasVibrator() ?? false) {
             Vibration.vibrate(
@@ -219,8 +259,10 @@ class _TimePageViewState extends State<TimePageView>
 
   // Pauseボタン
   Future<void> pushPause() async {
+    final tempIsPause = await setBoolFromPrefs(isPauseProperty, true);
     setState(() {
-      isPause = setBoolFromPrefs(isPauseProperty, true);
+      isPause = tempIsPause;
+      // localLeftTime = DateTime(0, 0, 0, 0, 0, 10);
       setDateTimeFromPrefs(leftTimeProperty, localLeftTime);
     });
   }
@@ -281,24 +323,29 @@ class _TimePageViewState extends State<TimePageView>
   // 通知ON／OFF
   Future<void> changeSoundOn() async {
     final newSoundOn = !(await getBoolFromPrefs(soundOnProperty));
+    final tempSoundOn = await setBoolFromPrefs(soundOnProperty, newSoundOn);
     setState(() {
-      soundOn = setBoolFromPrefs(soundOnProperty, newSoundOn);
+      soundOn = tempSoundOn;
     });
   }
 
   // 振動ON／OFF
   Future<void> changeVibrationOn() async {
     final newVibrationOn = !(await getBoolFromPrefs(vibrationOnProperty));
+    final tempVibrationOn =
+        await setBoolFromPrefs(vibrationOnProperty, newVibrationOn);
     setState(() {
-      vibrationOn = setBoolFromPrefs(vibrationOnProperty, newVibrationOn);
+      vibrationOn = tempVibrationOn;
     });
   }
 
   // 時間表示ON／OFF
   Future<void> changeDisplayTimeOn() async {
     final newDisplayTimeOn = !(await getBoolFromPrefs(displayTimeOnProperty));
+    final tempDisplayTimeOn =
+        await setBoolFromPrefs(displayTimeOnProperty, newDisplayTimeOn);
     setState(() {
-      displayTimeOn = setBoolFromPrefs(displayTimeOnProperty, newDisplayTimeOn);
+      displayTimeOn = tempDisplayTimeOn;
     });
   }
 
@@ -359,5 +406,15 @@ class _TimePageViewState extends State<TimePageView>
         pushPause: pushPause,
       ),
     );
+  }
+
+  bool IsLongDuration(Duration source, Duration target) {
+    if (source.inMinutes > target.inMinutes) {
+      return true;
+    } else if (source.inMinutes == target.inMinutes) {
+      return source.inSeconds >= target.inSeconds ? true : false;
+    } else {
+      return false;
+    }
   }
 }

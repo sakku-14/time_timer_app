@@ -8,32 +8,16 @@ class TimerOptionIconButton extends StatelessWidget {
       required this.stateFalseIcon,
       required this.onPressedFunction})
       : super(key: key);
-  final Future<bool> stateFlag;
+  final bool stateFlag;
   final Icon stateTrueIcon;
   final Icon stateFalseIcon;
   final Function onPressedFunction;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: stateFlag,
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.waiting:
-            return const CircularProgressIndicator();
-          case ConnectionState.active:
-          case ConnectionState.done:
-            if (snapshot.hasData) {
-              return IconButton(
-                onPressed: () => onPressedFunction(),
-                icon: snapshot!.data! ? stateTrueIcon : stateFalseIcon,
-              );
-            } else {
-              return Container();
-            }
-        }
-      },
+    return IconButton(
+      onPressed: () => onPressedFunction(),
+      icon: stateFlag ? stateTrueIcon : stateFalseIcon,
     );
   }
 }

@@ -16,9 +16,9 @@ class TimerBody extends StatelessWidget {
       required this.minuteForArc})
       : super(key: key);
   final DateTime leftTime;
-  final Future<bool> soundOn;
-  final Future<bool> vibrationOn;
-  final Future<bool> displayTimeOn;
+  final bool soundOn;
+  final bool vibrationOn;
+  final bool displayTimeOn;
   final int minuteForArc;
   final Function changeSoundOn;
   final Function changeVibrationOn;
