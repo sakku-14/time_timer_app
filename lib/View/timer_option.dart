@@ -28,12 +28,16 @@ class TimerOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final iconButtonFlex = isLandscape ? 5 : 2;
+
     return Container(
       color: Colors.cyan.shade50,
       child: Column(
         children: [
           Expanded(
-            flex: 2,
+            flex: iconButtonFlex,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -57,7 +61,7 @@ class TimerOption extends StatelessWidget {
             ),
           ),
           Expanded(
-              flex: 8,
+              flex: 10 - iconButtonFlex,
               child: Center(
                 child: displayTimeOn ? Text(getDisplayTime) : Container(),
               )),
