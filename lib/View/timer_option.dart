@@ -63,7 +63,17 @@ class TimerOption extends StatelessWidget {
           Expanded(
               flex: 10 - iconButtonFlex,
               child: Center(
-                child: displayTimeOn ? Text(getDisplayTime) : Container(),
+                child: displayTimeOn
+                    ? SizedBox.expand(
+                        child: Center(
+                          child: Text(
+                            getDisplayTime,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: isLandscape ? 30 : 50),
+                          ),
+                        ),
+                      )
+                    : Container(),
               )),
         ],
       ),
