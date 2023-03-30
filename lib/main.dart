@@ -37,9 +37,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'TimeTimerApp',
       theme: ThemeData(
+        useMaterial3: true,
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.grey,
       ),
       home: const TimePageView(title: 'TimeTimerApp'),
     );

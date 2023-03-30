@@ -33,7 +33,7 @@ class TimerOption extends StatelessWidget {
     final iconButtonFlex = isLandscape ? 5 : 2;
 
     return Container(
-      color: Colors.cyan.shade50,
+      color: Colors.grey.shade300,
       child: Column(
         children: [
           Expanded(
