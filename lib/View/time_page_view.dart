@@ -43,6 +43,7 @@ class _TimePageViewState extends State<TimePageView>
   var localLeftTime = DateTime(0);
   var minuteForArc = 0;
   var timerCancelFlag = false;
+  var currentIndex = 0;
   //#endregion
   //#endregion
 
@@ -194,6 +195,9 @@ class _TimePageViewState extends State<TimePageView>
   Future<void> pushStart() async {
     // タイマー起動中ORすでにタイマー終了してるなら早期リターン
     if (isPause == false || await isFinishedTimer()) return;
+    setState(() {
+      currentIndex = 0;
+    });
     final newIsPause = !(await getBoolFromPrefs(isPauseProperty));
     isPause = await setBoolFromPrefs(isPauseProperty, newIsPause);
     Timer.periodic(
@@ -243,6 +247,9 @@ class _TimePageViewState extends State<TimePageView>
           }
         });
       }
+      setState(() {
+        currentIndex = 1;
+      });
       return true;
     }
     return false;
@@ -261,6 +268,7 @@ class _TimePageViewState extends State<TimePageView>
   Future<void> pushPause() async {
     final tempIsPause = await setBoolFromPrefs(isPauseProperty, true);
     setState(() {
+      currentIndex = 1;
       isPause = tempIsPause;
       // localLeftTime = DateTime(0, 0, 0, 0, 0, 10);
       setDateTimeFromPrefs(leftTimeProperty, localLeftTime);
@@ -404,6 +412,7 @@ class _TimePageViewState extends State<TimePageView>
       bottomNavigationBar: TimePageBottomNavigationBar(
         pushStart: pushStart,
         pushPause: pushPause,
+        currentIndex: currentIndex,
       ),
     );
   }
