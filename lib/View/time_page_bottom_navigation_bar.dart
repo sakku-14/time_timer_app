@@ -14,6 +14,7 @@ class TimePageBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      selectedItemColor: Colors.red,
       currentIndex: currentIndex,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
