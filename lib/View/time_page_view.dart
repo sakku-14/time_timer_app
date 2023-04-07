@@ -207,6 +207,7 @@ class _TimePageViewState extends State<TimePageView>
   }
 
   void startTimer() {
+    if (!isPause) return;
     Timer.periodic(
       const Duration(seconds: 1),
       durationCallback,
