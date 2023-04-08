@@ -115,7 +115,7 @@ class _TimePageViewState extends State<TimePageView>
       final leftTimeDuration = tempLocalLeftTime.difference(DateTime(0));
       if (diffDuration.inDays >= 1 ||
           diffDuration.inHours >= 1 ||
-          IsLongDuration(diffDuration, leftTimeDuration)) {
+          isLongDuration(diffDuration, leftTimeDuration)) {
         tempLocalLeftTime = DateTime(0);
         timerCancelFlag = true;
       } else {
@@ -198,8 +198,7 @@ class _TimePageViewState extends State<TimePageView>
     setState(() {
       currentIndex = 0;
     });
-    final newIsPause = !(await getBoolFromPrefs(isPauseProperty));
-    isPause = await setBoolFromPrefs(isPauseProperty, newIsPause);
+    isPause = await setBoolFromPrefs(isPauseProperty, false);
     Timer.periodic(
       const Duration(seconds: 1),
       durationCallback,
@@ -207,6 +206,7 @@ class _TimePageViewState extends State<TimePageView>
   }
 
   void startTimer() {
+    // タイマー起動中に実行すると倍速でタイマー進むため、起動中なら早期リターン
     if (!isPause) return;
     Timer.periodic(
       const Duration(seconds: 1),
@@ -221,11 +221,14 @@ class _TimePageViewState extends State<TimePageView>
       timerCancelFlag = false;
       return;
     }
+
+    // タイマー停止中かタイマー終了時なら
     if (isPause || await finishTimer()) {
       isPause = await setBoolFromPrefs(isPauseProperty, true);
       timer.cancel();
       return;
     }
+
     final newLeftTime = localLeftTime.subtract(const Duration(seconds: 1));
     setState(() {
       localLeftTime = newLeftTime;
@@ -250,6 +253,8 @@ class _TimePageViewState extends State<TimePageView>
       }
       setState(() {
         currentIndex = 1;
+        localLeftTime = DateTime(0);
+        minuteForArc = 0;
       });
       return true;
     }
@@ -262,6 +267,7 @@ class _TimePageViewState extends State<TimePageView>
         localLeftTime.second == 0) {
       return true;
     }
+    if (localLeftTime.hour > 1) return true;
     return false;
   }
 
@@ -271,7 +277,6 @@ class _TimePageViewState extends State<TimePageView>
     setState(() {
       currentIndex = 1;
       isPause = tempIsPause;
-      // localLeftTime = DateTime(0, 0, 0, 0, 0, 10);
       setDateTimeFromPrefs(leftTimeProperty, localLeftTime);
     });
   }
@@ -418,11 +423,15 @@ class _TimePageViewState extends State<TimePageView>
     );
   }
 
-  bool IsLongDuration(Duration source, Duration target) {
-    if (source.inMinutes > target.inMinutes) {
+  bool isLongDuration(Duration source, Duration target) {
+    final sourceMinutes = source.inMinutes % 60;
+    final targetMinutes = target.inMinutes % 60;
+    final sourceSeconds = source.inSeconds % 60;
+    final targetSeconds = target.inSeconds % 60;
+    if (sourceMinutes > targetMinutes) {
       return true;
-    } else if (source.inMinutes == target.inMinutes) {
-      return source.inSeconds >= target.inSeconds ? true : false;
+    } else if (sourceMinutes == targetMinutes) {
+      return sourceSeconds >= targetSeconds ? true : false;
     } else {
       return false;
     }
