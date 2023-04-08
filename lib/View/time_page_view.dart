@@ -113,14 +113,13 @@ class _TimePageViewState extends State<TimePageView>
     if (!tempIsPause) {
       final diffDuration = DateTime.now().difference(detachedTime);
       final leftTimeDuration = tempLocalLeftTime.difference(DateTime(0));
+      timerCancelFlag = false;
       if (diffDuration.inDays >= 1 ||
           diffDuration.inHours >= 1 ||
           isLongDuration(diffDuration, leftTimeDuration)) {
         tempLocalLeftTime = DateTime(0);
-        timerCancelFlag = true;
       } else {
         tempLocalLeftTime = tempLocalLeftTime.subtract(diffDuration);
-        timerCancelFlag = false;
         startTimer();
       }
     }
