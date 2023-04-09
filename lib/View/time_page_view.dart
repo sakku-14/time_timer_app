@@ -242,11 +242,16 @@ class _TimePageViewState extends State<TimePageView>
         NotificationService.notifyNow();
       }
       if (vibrationOn) {
+        final soundOnPattern = [2000, 500, 2000, 500, 2000, 500];
+        final soundOffPattern = [5000, 2000, 500, 2000, 500, 2000];
+        final soundOnIntensities = [255, 0, 255, 0, 255, 0];
+        final soundOffIntensities = [0, 255, 0, 255, 0, 255];
         Future(() async {
           if (await Vibration.hasVibrator() ?? false) {
             Vibration.vibrate(
-                pattern: [2000, 500, 2000, 500, 2000, 500],
-                intensities: [255, 0, 255, 0, 255, 0]);
+              pattern: soundOn ? soundOnPattern : soundOffPattern,
+              intensities: soundOn ? soundOnIntensities : soundOffIntensities,
+            );
           }
         });
       }
