@@ -43,7 +43,7 @@ class _TimePageViewState extends State<TimePageView>
   var localLeftTime = DateTime(0);
   var minuteForArc = 0;
   var timerCancelFlag = false;
-  var currentIndex = 0;
+  var currentIndex = 1;
   //#endregion
   //#endregion
 
@@ -97,7 +97,7 @@ class _TimePageViewState extends State<TimePageView>
           dateTimeFormat.format(DateTime(0)));
       return leftTime;
     });
-    final tempIsPause =
+    var tempIsPause =
         await _prefs.then((value) => value.getBool(isPauseProperty) ?? true);
     final tempSoundOn =
         await _prefs.then((value) => value.getBool(soundOnProperty) ?? true);
@@ -118,6 +118,8 @@ class _TimePageViewState extends State<TimePageView>
           diffDuration.inHours >= 1 ||
           isLongDuration(diffDuration, leftTimeDuration)) {
         tempLocalLeftTime = DateTime(0);
+        // タイマー停止状態に更新
+        tempIsPause = true;
       } else {
         tempLocalLeftTime = tempLocalLeftTime.subtract(diffDuration);
         startTimer();
@@ -126,6 +128,7 @@ class _TimePageViewState extends State<TimePageView>
 
     setState(() {
       isPause = tempIsPause;
+      currentIndex = tempIsPause ? 1 : 0;
       soundOn = tempSoundOn;
       vibrationOn = tempVibrationOn;
       displayTimeOn = tempDisplayTimeOn;
@@ -149,6 +152,7 @@ class _TimePageViewState extends State<TimePageView>
     prefs.setBool(soundOnProperty, soundOn);
     prefs.setBool(vibrationOnProperty, vibrationOn);
     prefs.setBool(displayTimeOnProperty, displayTimeOn);
+    currentIndex = 1;
     if (!isPause) {
       prefs.setString(
           detachedTimeProperty, dateTimeFormat.format(DateTime.now()));
@@ -281,6 +285,7 @@ class _TimePageViewState extends State<TimePageView>
     setState(() {
       currentIndex = 1;
       isPause = tempIsPause;
+      // localLeftTime = DateTime(0, 0, 0, 0, 0, 10);
       setDateTimeFromPrefs(leftTimeProperty, localLeftTime);
     });
   }
