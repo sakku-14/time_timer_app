@@ -141,9 +141,12 @@ class _TimePageViewState extends State<TimePageView>
 
   // アプリ終了時処理
   Future<void> onDetached() async {
-    var notifyDateTime = DateTime.now().add(
-        Duration(minutes: localLeftTime.minute, seconds: localLeftTime.second));
-    NotificationService.scheduleNotifications(notifyDateTime);
+    if (soundOn) {
+      final notifyDateTime = DateTime.now().add(Duration(
+          minutes: localLeftTime.minute, seconds: localLeftTime.second));
+      NotificationService.scheduleNotifications(notifyDateTime);
+    }
+
     // 現在設定値の保存
     final dateTimeFormat = DateFormat(dateTimeFormatString);
     final prefs = await _prefs;
