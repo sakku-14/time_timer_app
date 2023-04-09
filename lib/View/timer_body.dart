@@ -45,10 +45,10 @@ class TimerBody extends StatelessWidget {
             flex: 3,
             child: TimerOption(
               leftTime: leftTime,
-              soundOn: soundOn,
+              notificationOn: soundOn,
               vibrationOn: vibrationOn,
               displayTimeOn: displayTimeOn,
-              changeSoundOn: changeSoundOn,
+              changeNotificationOn: changeSoundOn,
               changeVibrationOn: changeVibrationOn,
               changeDisplayTimeOn: changeDisplayTimeOn,
             ),

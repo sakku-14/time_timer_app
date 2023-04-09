@@ -28,7 +28,7 @@ class _TimePageViewState extends State<TimePageView>
   static const String leftTimeProperty = 'LeftTime';
   static const String detachedTimeProperty = 'DetachedTime';
   static const String isPauseProperty = 'IsPause';
-  static const String soundOnProperty = 'SoundOn';
+  static const String notificationOnProperty = 'NotificationOn';
   static const String vibrationOnProperty = 'VibrationOn';
   static const String displayTimeOnProperty = 'DisplayTimeOn';
   static const String dateTimeFormatString = 'yyyy-MM-dd HH:mm:ss';
@@ -36,7 +36,7 @@ class _TimePageViewState extends State<TimePageView>
 
   //#region 変数
   var isPause = true;
-  var soundOn = true;
+  var notificationOn = true;
   var vibrationOn = true;
   var displayTimeOn = true;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -99,8 +99,8 @@ class _TimePageViewState extends State<TimePageView>
     });
     var tempIsPause =
         await _prefs.then((value) => value.getBool(isPauseProperty) ?? true);
-    final tempSoundOn =
-        await _prefs.then((value) => value.getBool(soundOnProperty) ?? true);
+    final tempNotificationOn = await _prefs
+        .then((value) => value.getBool(notificationOnProperty) ?? true);
     final tempVibrationOn = await _prefs
         .then((value) => value.getBool(vibrationOnProperty) ?? true);
     final tempDisplayTimeOn = await _prefs
@@ -129,7 +129,7 @@ class _TimePageViewState extends State<TimePageView>
     setState(() {
       isPause = tempIsPause;
       currentIndex = tempIsPause ? 1 : 0;
-      soundOn = tempSoundOn;
+      notificationOn = tempNotificationOn;
       vibrationOn = tempVibrationOn;
       displayTimeOn = tempDisplayTimeOn;
       localLeftTime = tempLocalLeftTime;
@@ -141,7 +141,7 @@ class _TimePageViewState extends State<TimePageView>
 
   // アプリ終了時処理
   Future<void> onDetached() async {
-    if (soundOn) {
+    if (notificationOn) {
       final notifyDateTime = DateTime.now().add(Duration(
           minutes: localLeftTime.minute, seconds: localLeftTime.second));
       NotificationService.scheduleNotifications(notifyDateTime);
@@ -152,7 +152,7 @@ class _TimePageViewState extends State<TimePageView>
     final prefs = await _prefs;
     prefs.setString(leftTimeProperty, dateTimeFormat.format(localLeftTime));
     prefs.setBool(isPauseProperty, isPause);
-    prefs.setBool(soundOnProperty, soundOn);
+    prefs.setBool(notificationOnProperty, notificationOn);
     prefs.setBool(vibrationOnProperty, vibrationOn);
     prefs.setBool(displayTimeOnProperty, displayTimeOn);
     currentIndex = 1;
@@ -245,19 +245,23 @@ class _TimePageViewState extends State<TimePageView>
 
   Future<bool> finishTimer() async {
     if (await isFinishedTimer()) {
-      if (soundOn) {
+      if (notificationOn) {
         NotificationService.notifyNow();
       }
       if (vibrationOn) {
-        final soundOnPattern = [2000, 500, 2000, 500, 2000, 500];
-        final soundOffPattern = [5000, 2000, 500, 2000, 500, 2000];
-        final soundOnIntensities = [255, 0, 255, 0, 255, 0];
-        final soundOffIntensities = [0, 255, 0, 255, 0, 255];
+        final notificationOnPattern = [2000, 500, 2000, 500, 2000, 500];
+        final notificationOffPattern = [5000, 2000, 500, 2000, 500, 2000];
+        final notificationOnIntensities = [255, 0, 255, 0, 255, 0];
+        final notificationOffIntensities = [0, 255, 0, 255, 0, 255];
         Future(() async {
           if (await Vibration.hasVibrator() ?? false) {
             Vibration.vibrate(
-              pattern: soundOn ? soundOnPattern : soundOffPattern,
-              intensities: soundOn ? soundOnIntensities : soundOffIntensities,
+              pattern: notificationOn
+                  ? notificationOnPattern
+                  : notificationOffPattern,
+              intensities: notificationOn
+                  ? notificationOnIntensities
+                  : notificationOffIntensities,
             );
           }
         });
@@ -347,11 +351,12 @@ class _TimePageViewState extends State<TimePageView>
   // endregion
   // region タイマーオプション
   // 通知ON／OFF
-  Future<void> changeSoundOn() async {
-    final newSoundOn = !(await getBoolFromPrefs(soundOnProperty));
-    final tempSoundOn = await setBoolFromPrefs(soundOnProperty, newSoundOn);
+  Future<void> changeNotificationOn() async {
+    final newNotificationOn = !(await getBoolFromPrefs(notificationOnProperty));
+    final tempNotificationOn =
+        await setBoolFromPrefs(notificationOnProperty, newNotificationOn);
     setState(() {
-      soundOn = tempSoundOn;
+      notificationOn = tempNotificationOn;
     });
   }
 
@@ -416,10 +421,10 @@ class _TimePageViewState extends State<TimePageView>
               flex: 3,
               child: TimerOption(
                 leftTime: localLeftTime,
-                soundOn: soundOn,
+                notificationOn: notificationOn,
                 vibrationOn: vibrationOn,
                 displayTimeOn: displayTimeOn,
-                changeSoundOn: changeSoundOn,
+                changeNotificationOn: changeNotificationOn,
                 changeVibrationOn: changeVibrationOn,
                 changeDisplayTimeOn: changeDisplayTimeOn,
               ),

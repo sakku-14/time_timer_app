@@ -6,18 +6,18 @@ class TimerOption extends StatelessWidget {
   const TimerOption(
       {Key? key,
       required this.leftTime,
-      required this.soundOn,
+      required this.notificationOn,
       required this.vibrationOn,
       required this.displayTimeOn,
-      required this.changeSoundOn,
+      required this.changeNotificationOn,
       required this.changeVibrationOn,
       required this.changeDisplayTimeOn})
       : super(key: key);
   final DateTime leftTime;
-  final bool soundOn;
+  final bool notificationOn;
   final bool vibrationOn;
   final bool displayTimeOn;
-  final Function changeSoundOn;
+  final Function changeNotificationOn;
   final Function changeVibrationOn;
   final Function changeDisplayTimeOn;
 
@@ -42,10 +42,10 @@ class TimerOption extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TimerOptionIconButton(
-                    stateFlag: soundOn,
+                    stateFlag: notificationOn,
                     stateTrueIcon: const Icon(Icons.notifications_rounded),
                     stateFalseIcon: const Icon(Icons.notifications_off_rounded),
-                    onPressedFunction: changeSoundOn),
+                    onPressedFunction: changeNotificationOn),
                 TimerOptionIconButton(
                     stateFlag: vibrationOn,
                     stateTrueIcon: const Icon(Icons.edgesensor_high_rounded),

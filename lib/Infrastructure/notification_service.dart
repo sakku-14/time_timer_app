@@ -4,8 +4,8 @@ import 'package:timezone/timezone.dart' as tz;
 class NotificationService {
   // 今すぐ通知する
   static Future<void> notifyNow() async {
-    final flnp = FlutterLocalNotificationsPlugin();
-    flnp.show(
+    final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.show(
       0,
       '完了通知',
       'タイマーが終了しました',
@@ -22,8 +22,8 @@ class NotificationService {
     final scheduleTime = tz.TZDateTime.from(dateTime, tz.local);
 
     // 通知をスケジュールする
-    final flnp = FlutterLocalNotificationsPlugin();
-    await flnp.zonedSchedule(
+    final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    await flutterLocalNotificationsPlugin.zonedSchedule(
       1,
       '完了通知',
       'タイマーが終了しました',
@@ -40,7 +40,7 @@ class NotificationService {
 
   // 通知キャンセル
   static Future<void> cancelNotificationsSchedule() async {
-    final flnp = FlutterLocalNotificationsPlugin();
-    await flnp.cancelAll();
+    final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    await flutterLocalNotificationsPlugin.cancelAll();
   }
 }
