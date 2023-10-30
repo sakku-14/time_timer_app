@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class TimePageAppBar extends StatelessWidget with PreferredSizeWidget {
+class TimePageAppBar extends StatelessWidget implements PreferredSizeWidget {
   const TimePageAppBar({Key? key, required this.title}) : super(key: key);
   final String title;
 
