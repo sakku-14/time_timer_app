@@ -1,16 +1,17 @@
-# time_timer_app
+# TimeTimerApp
+[Time Timer](https://apps.apple.com/jp/app/time-timer/id332520417)を模写したアプリです。
+タイマーが経過時間を把握しやすいアナログ表示です。経過時間のアナログ表示を求める人に最適な時間管理アプリです。
 
-A new Flutter project.
+## TimeTimerAppの機能
+- 最大60分計れるアナログタイマー
+- 設定時間が経過すると振動でユーザーへ通知
+- 設定時間が経過するとプッシュ通知でユーザーへ通知
+- 振動のON/OFFを切り替えることができる
+- プッシュ通知のON/OFFを切り替えることができる
+- 設定時間をデジタル表示で確認することができる
+- 設定時間の表示/非表示を切り替えることができる
 
-## Getting Started
+## デモ
+＞＞＞　動画　＜＜＜
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 実行
