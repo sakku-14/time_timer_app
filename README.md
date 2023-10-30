@@ -20,7 +20,7 @@
 |<img src="https://github.com/sakku-14/time_timer_app/assets/65479630/6e360dcb-a8f3-4472-941d-c3c5333cbd11" width="200">|<img src="https://github.com/sakku-14/time_timer_app/assets/65479630/574c1b73-d684-4d6a-a019-a9e09f381cef" width="200">|
 
 ## デモ
-![デモ](https://github.com/sakku-14/time_timer_app/assets/65479630/a53a3d3a-4dab-4be1-95e6-596ce2f67940)
+https://github.com/sakku-14/time_timer_app/assets/65479630/a53a3d3a-4dab-4be1-95e6-596ce2f67940
 
 ## 実行
 ### 実行環境
